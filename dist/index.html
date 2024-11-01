@@ -6,43 +6,73 @@
     <title>Document</title>
 <script defer src="main.js"></script></head>
 <body>
-    <div class="container">
-        <h1>Weather forecaster</h1>
-        <div class="inputs">        
-            <div>
-                <div>
-                    <label>From date</label>
-                    <input type="date" class="date-picker" id="from-date">
-                </div>            
-                <div>
-                    <input type="checkbox" id="from-date-only" ><span>From date only</span>
+    <div class="container1">
+        <div class="container2">
+            <h1>Weather forecaster</h1>
+            <div class="inputs">        
+                <div class="date-info card">
+                    <div class="date-info date">
+                        <label>From date</label>
+                        <input type="date" class="date-picker" id="from-date">
+                    </div>
+                    <div class="date-info date">
+                        <label>To date</label>
+                        <input type="date" class="date-picker" id="to-date">
+                    </div>
                 </div>
-                <div>
-                    <label>To date</label>
-                    <input type="date" class="date-picker" id="to-date">
+                <div class="get-inputs">
+                    <input type="search" id="search" placeholder="Location">
+                    <button class="search-btn">Search</button>
                 </div>
             </div>
-            <div>
-                <input type="search" id="search" placeholder="Location">
-                <button class="search-btn">Search</button>
+
+            <div class="outer-div">
+                <div class="common-description">
+                    
+                </div>
+            </div>
+
+            <div class="outer-div">
+                <div class="choose">
+                    <div class="selectives s-one">
+
+                    </div>
+                    <div class="selectives s-two">
+
+                    </div>
+                    <div class="selectives s-three">
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="outer-div">
+                <div class="view-info">
+                    <!-- <div class="input-hour">
+                        <label>Enter a specific hour</label><input type="number" id="hour" min="0" max="23">
+                    </div> -->
+                    <div class="info">
+                        <div class="previous-day"></div>
+                        <div class="content">
+                            <div class="col col-one">
+
+                            </div>
+                            <div class="col col-two">
+
+                            </div>
+                            <div class="col col-three">
+
+                            </div>
+                        </div>
+                        <div class="next-day"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+    
             </div>
         </div>
-        <div class="common-description">
-
-        </div>
-        <div class="view-info">
-            <div class="input-calender">
-
-            </div>
-            <div class="info">
-                <div class="previous-day"></div>
-                <div class="content"></div>
-                <div class="next-day"></div>
-            </div>
-        </div>
-        <div class="footer">
-
-        </div>
-    </div>    
+    </div>        
 </body>
 </html>
