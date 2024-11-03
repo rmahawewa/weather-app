@@ -8,7 +8,7 @@
 <body>
     <div class="container1">
         <div class="container2">
-            <h1>Weather forecaster</h1>
+            <h1>Weather forecaster<span>Powed by: <a href="https://www.visualcrossing.com/" target="_blank">visualcrossing</a></span></h1>
             <div class="inputs">        
                 <div class="date-info card">
                     <div class="date-info date">
@@ -40,8 +40,7 @@
             
             <div class="outer-div">
                 <div class="view-info">                    
-                    <div class="info">
-                        <div class="previous-day"></div>
+                    <div class="info">                        
                         <div class="content">
                             <div class="general-forecast">
 
@@ -50,7 +49,10 @@
 
                             </div>
                         </div>
-                        <div class="next-day"></div>
+                        <div class="day-switch">
+                            <div class="previous-day"><button class="day-switch-btn" id="previous-day">previous-day</button></div>
+                            <div class="next-day"><button class="day-switch-btn" id="next-day">next-day</button></div>
+                        </div>                        
                     </div>
                 </div>
             </div>

@@ -22,30 +22,22 @@ function get_info(){
     return {info};
 }
 
-
-
 function add_selectives(){
     let selectives = {
         'Date': 1,
         'Conditions': 1,
-        'Moonphase': 1,
         'Cloud cover': 1,
-        'Description': 1,
         'Windspeed': 1,
         'Dew': 1,      
         'Humidity': 1,
         'Icon': 1,       
         'Solar energy': 1,
-        'Maximum temperature': 1,
-        'Minimum temperature': 1,
         'Solar radiation': 1,
-        'Sunrise time': 1,
-        'Sunset time': 1,
         'Snow': 1,       
         'Snow depth': 1,
         'Visibility': 1,
         'Wind direction': 1,
-        'Hours': -1,
+        'Hours': 10,
     }
     return {selectives};
 }
@@ -179,10 +171,15 @@ function process(infomation, days){
     let item_obj = get_selectives();
     create_item_board(item_obj);
 
-    let whole_forecast = get_info().info;
-    let general_forecast = whole_forecast.days.days_array;
+    get_forecast(0, 10);
+}
 
-    weather_all_day(general_forecast, 0);
+function get_forecast(days_array_index, hours_array_index){
+    let whole_forecast = get_info().info;
+    let forecast = whole_forecast.days.days_array;
+
+    weather_all_day(forecast, days_array_index);
+    weather_for_hour(forecast, days_array_index, hours_array_index);
 }
 
 function create_description(){
@@ -214,7 +211,7 @@ function create_item_board(item_obj){
                             <input type="number" min="0" max="23" value=`+ hour_value +`>
                             <div class="item_check_boxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1rem;">
                             <div class='checkbox'>
-                                    <input type="checkbox" class='weather-item' id='All' value='All' checked>
+                                    <input type="checkbox" class='weather-item' id='all' value='All' checked>
                                     <label>All</label>
                             </div>`;
     if(Object.keys(item_obj).length > 0){
@@ -238,19 +235,16 @@ function create_item_board(item_obj){
 function weather_all_day(days_obj, index){   //see line number 21
     let not_in_hours = ['Moonphase', 'Description', 'Maximum temperature', 'Minimum temperature', 'Sunrise time', 'Sunset time'];
     let details = days_obj[index];
-    let selectives = localStorage.getItem("weather_items");
-    let selectives_obj = JSON.parse(selectives);
 
     let item_container = '<h3>Throughout day forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
 
     for(const [key,value] of Object.entries(details)){
         if(value !== undefined && not_in_hours.includes(key)){
             item_container += `
-                <div class="additional-item" style="display: flex; flex-direction: column;">
+                <div class="all-day-item" style="display: flex; flex-direction: column;">
                     <label>`+ key +`</label>
                     <label>`+ value +`</label>
-                </div>
-            
+                </div>            
             `;
         }
     }
@@ -258,6 +252,32 @@ function weather_all_day(days_obj, index){   //see line number 21
     item_container += `</div>`;
 
     let parent_div = document.querySelector(".general-forecast");
+    parent_div.innerHTML = item_container;
+
+}
+
+function weather_for_hour(days_obj, index, hour){
+    let selectives = localStorage.getItem("weather_items");
+    let selectives_obj = JSON.parse(selectives);
+    let details = days_obj[index].hours[hour];
+    hour = hour < 10 ? "0"+hour : hour;
+
+    let item_container = '<h3>'+ hour +' hour forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
+
+    for(const [key,value] of Object.entries(details)){
+        if(key in selectives_obj && selectives_obj[key] > 0){
+            item_container += `
+                <div class="additional-item" style="display: flex; flex-direction: column;">
+                    <label>`+ key +`</label>
+                    <label>`+ value +`</label>
+                </div>        
+            `;
+        }
+    }
+
+    item_container += `</div>`;
+
+    let parent_div = document.querySelector(".hourly-forecast");
     parent_div.innerHTML = item_container;
 
 }
@@ -281,3 +301,39 @@ function get_selectives(){
     console.log(items_obj);
     return items_obj;
 }
+
+function all_items_button_click(value){
+    let selectives = localStorage.getItem("weather_items");
+    let selectives_obj = JSON.parse(selectives);
+
+    if(value === 1){
+        for(const [key,value] of Object.entries(selectives_obj)){
+            if(key.localeCompare("Hours") === 0){ continue; }
+            selectives_obj[key] = 1;
+        }
+    }
+    if(value === 0){
+        for(const [key,value] of Object.entries(selectives_obj)){
+            if(key.localeCompare("Hours") === 0){ continue; }
+            selectives_obj[key] = 0;
+        }
+    }
+
+    let weather_items = JSON.stringify(selectives_obj);
+    localStorage.setItem("weather_items", weather_items);
+
+    const is_checked = value === 1 ? true : false; 
+    let checkboxes = document.querySelectorAll(".weather-item");
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.checked = is_checked;
+    });
+
+}
+
+let checkbox_all = document.querySelector("#all");
+checkbox_all.addEventListener("click", function(){
+    let is_checked = checkbox_all.checked;
+    all_items_button_click(is_checked);
+
+})
