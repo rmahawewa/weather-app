@@ -24,6 +24,7 @@ function get_info(){
 
 function add_selectives(){
     let selectives = {
+        'days_index': 0,
         'Date': 1,
         'Conditions': 1,
         'Cloud cover': 1,
@@ -171,7 +172,7 @@ function process(infomation, days){
     let item_obj = get_selectives();
     create_item_board(item_obj);
 
-    get_forecast(0, 10);
+    get_forecast(item_obj['days_index'], item_obj['Hours']);
 }
 
 function get_forecast(days_array_index, hours_array_index){
@@ -218,7 +219,7 @@ function create_item_board(item_obj){
         for(const [key,value] of Object.entries(item_obj)){
             let is_checked = value === 1 ? "checked" : "";
             if(not_in_hours.includes(key) && item_obj.Hours > -1){ continue; }
-            if(key.localeCompare("Hours") === 0){ continue; }
+            if(key.localeCompare("Hours") === 0 || key.localeCompare("days_index") === 0){ continue; }
             item_container += `
                                 <div class='checkbox'>
                                     <input type="checkbox" class='weather-item' id=`+ key +` value=`+ key +` `+ is_checked +`>
@@ -265,12 +266,13 @@ function weather_for_hour(days_obj, index, hour){
     let item_container = '<h3>'+ hour +' hour forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
 
     for(const [key,value] of Object.entries(details)){
+        if(key in selectives_obj && key.localeCompare("days_index") === 0){ continue; }
         if(key in selectives_obj && selectives_obj[key] > 0){
             item_container += `
                 <div class="additional-item" style="display: flex; flex-direction: column;">
                     <label>`+ key +`</label>
                     <label>`+ value +`</label>
-                </div>        
+                </div>
             `;
         }
     }
@@ -331,9 +333,10 @@ function all_items_button_click(value){
 
 }
 
-let checkbox_all = document.querySelector("#all");
-checkbox_all.addEventListener("click", function(){
-    let is_checked = checkbox_all.checked;
-    all_items_button_click(is_checked);
-
-})
+let choose = document.querySelector(".choose");
+choose.addEventListener('click', (e) => {
+    if(e.target.getAttribute("id").localeCompare("all") === 0){
+        let is_checked = checkbox_all.checked;
+        all_items_button_click(is_checked);
+    }
+});
