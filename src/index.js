@@ -171,8 +171,9 @@ function process(infomation, days){
     create_description();
     let item_obj = get_selectives();
     create_item_board(item_obj);
-
+    console.log(item_obj);
     get_forecast(item_obj['days_index'], item_obj['Hours']);
+    
 }
 
 function get_forecast(days_array_index, hours_array_index){
@@ -222,7 +223,7 @@ function create_item_board(item_obj){
             if(key.localeCompare("Hours") === 0 || key.localeCompare("days_index") === 0){ continue; }
             item_container += `
                                 <div class='checkbox'>
-                                    <input type="checkbox" class='weather-item' id=`+ key +` value=`+ key +` `+ is_checked +`>
+                                    <input type="checkbox" class='weather-item one-item' id=`+ key +` value=`+ key +` `+ is_checked +`>
                                     <label>`+ key +`</label>
                                 </div>
             `;
@@ -304,9 +305,29 @@ function get_selectives(){
     return items_obj;
 }
 
+function update_selectives(selectives){
+    let selectives_string = JSON.stringify(selectives);
+    localStorage.setItem("weather_items", selectives_string);
+    console.log("selectives string");
+    console.log(selectives_string);
+}
+
+function one_checkbox_click(k, v){
+    let selectives_obj = get_selectives();
+
+    for(const [key,value] of Object.entries(selectives_obj)){
+        if(key.localeCompare(k) === 0)
+        selectives_obj[key] = v;
+    }
+
+    update_selectives(selectives_obj);
+
+    get_forecast(selectives_obj['days_index'], selectives_obj['Hours']);
+
+}
+
 function all_items_button_click(value){
-    let selectives = localStorage.getItem("weather_items");
-    let selectives_obj = JSON.parse(selectives);
+    let selectives_obj = get_selectives();
 
     if(value === 1){
         for(const [key,value] of Object.entries(selectives_obj)){
@@ -321,8 +342,7 @@ function all_items_button_click(value){
         }
     }
 
-    let weather_items = JSON.stringify(selectives_obj);
-    localStorage.setItem("weather_items", weather_items);
+    update_selectives(selectives_obj);    
 
     const is_checked = value === 1 ? true : false; 
     let checkboxes = document.querySelectorAll(".weather-item");
@@ -331,12 +351,22 @@ function all_items_button_click(value){
         checkbox.checked = is_checked;
     });
 
+    get_forecast(selectives_obj['days_index'], selectives_obj['Hours']);
 }
 
 let choose = document.querySelector(".choose");
 choose.addEventListener('click', (e) => {
+    
     if(e.target.getAttribute("id").localeCompare("all") === 0){
-        let is_checked = checkbox_all.checked;
+        let is_checked = e.target.checked ? 1 : 0;
         all_items_button_click(is_checked);
+    }
+
+    let array = e.target.getAttribute("class").split(" ");
+    if(array.includes("one-item")){        
+        let key = e.target.getAttribute("value");
+        let value = e.target.checked ? 1 : 0;
+        console.log("check box key: " + key);
+        one_checkbox_click(key, value);
     }
 });
