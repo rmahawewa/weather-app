@@ -6,10 +6,11 @@ let days = {};
 
 function store_info(info){
     // if(localStorage.getItem("weather_info") === null){
-        console.log(info);
+        
         let weather_info = JSON.stringify(info);
-        console.log(weather_info);
+        
         localStorage.setItem("weather_info", weather_info);
+        
     // }
 }
 
@@ -18,13 +19,14 @@ function get_info(){
     if(localStorage.getItem("weather_info") !== null){
         info = JSON.parse(localStorage.getItem("weather_info"));
     }
-    console.log(info.days.days_array[0]);
+    
     return {info};
 }
 
 function add_selectives(){
     let selectives = {
         'days_index': 0,
+        'days_max_index': -1,
         'Date': 1,
         'Conditions': 1,
         'Cloud cover': 1,
@@ -141,7 +143,7 @@ async function get_weather_info(location, from_date, to_date) {
     let response = await fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'+ location +'/'+ from_date +'/'+ to_date +'?key=6FWBP6SFZFSZ3KE3AXM3Z6V2B&contentType=json', {mode:'cors'});
     let info = response.json().then(function(response){
         let info = response;
-        console.log(info);
+        
         return info;
     });
 
@@ -149,11 +151,12 @@ async function get_weather_info(location, from_date, to_date) {
 }
 
 let search_button = document.querySelector(".search-btn");
-// console.log(search_button.innerHTML);
+
 
 search_button.addEventListener("click", function(){
     let location = document.querySelector("#search").value;
     process(infomation, days);
+    view_day_switch_buttons();
     
 });
 
@@ -168,10 +171,11 @@ function process(infomation, days){
     //     return details;
     // });
     // store_info_object(details);
+    add_day_array_max_index();
     create_description();
-    let item_obj = get_selectives();
+    let item_obj = get_selectives().items_obj;
+    
     create_item_board(item_obj);
-    console.log(item_obj);
     get_forecast(item_obj['days_index'], item_obj['Hours']);
     
 }
@@ -210,7 +214,7 @@ function create_item_board(item_obj){
     let item_container = `<h3>Add required additional information</h3>
                             <div class="hour">
                             <label>Hour</label>
-                            <input type="number" min="0" max="23" value=`+ hour_value +`>
+                            <input type="number" id="hour-value" min="0" max="23" value=`+ hour_value +`>
                             <div class="item_check_boxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1rem;">
                             <div class='checkbox'>
                                     <input type="checkbox" class='weather-item' id='all' value='All' checked>
@@ -223,7 +227,7 @@ function create_item_board(item_obj){
             if(key.localeCompare("Hours") === 0 || key.localeCompare("days_index") === 0){ continue; }
             item_container += `
                                 <div class='checkbox'>
-                                    <input type="checkbox" class='weather-item one-item' id=`+ key +` value=`+ key +` `+ is_checked +`>
+                                    <input type="checkbox" class='weather-item one-item' id="`+ key +`" value="`+ key +`" `+ is_checked +`>
                                     <label>`+ key +`</label>
                                 </div>
             `;
@@ -235,7 +239,7 @@ function create_item_board(item_obj){
 }
 
 function weather_all_day(days_obj, index){   //see line number 21
-    let not_in_hours = ['Moonphase', 'Description', 'Maximum temperature', 'Minimum temperature', 'Sunrise time', 'Sunset time'];
+    let not_in_hours = ['Date','Moonphase', 'Description', 'Maximum temperature', 'Minimum temperature', 'Sunrise time', 'Sunset time'];
     let details = days_obj[index];
 
     let item_container = '<h3>Throughout day forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
@@ -269,9 +273,10 @@ function weather_for_hour(days_obj, index, hour){
     for(const [key,value] of Object.entries(details)){
         if(key in selectives_obj && key.localeCompare("days_index") === 0){ continue; }
         if(key in selectives_obj && selectives_obj[key] > 0){
+            let name = key.localeCompare("Date") === 0 ? "Time": key;
             item_container += `
                 <div class="additional-item" style="display: flex; flex-direction: column;">
-                    <label>`+ key +`</label>
+                    <label>`+ name +`</label>
                     <label>`+ value +`</label>
                 </div>
             `;
@@ -285,8 +290,21 @@ function weather_for_hour(days_obj, index, hour){
 
 }
 
-function get_selectives(){
-    let items_obj = {};
+function add_day_array_max_index(){
+    let info_object = get_info().info;
+    let info_object_length = info_object.days.days_array.length;
+    let info_object_max_index = info_object_length - 1;
+    console.log(info_object.days.days_array);
+
+    let selectives = get_selectives().items_obj;
+    selectives['days_max_index'] = info_object_max_index;
+    update_selectives(selectives);
+}
+
+function get_selectives(){    
+
+    let items_obj = "";
+    
     if(localStorage.getItem("weather_items") === null || localStorage.getItem("weather_items") === undefined){
 
         let selectives = add_selectives().selectives;
@@ -297,23 +315,22 @@ function get_selectives(){
 
     if(localStorage.getItem("weather_items") !== null){
         let items = localStorage.getItem("weather_items");
-        console.log(items);
+        
         items = JSON.parse(items);
         items_obj = items;
     }
-    console.log(items_obj);
-    return items_obj;
+    
+    return {items_obj};
 }
 
 function update_selectives(selectives){
     let selectives_string = JSON.stringify(selectives);
     localStorage.setItem("weather_items", selectives_string);
-    console.log("selectives string");
-    console.log(selectives_string);
+    
 }
 
 function one_checkbox_click(k, v){
-    let selectives_obj = get_selectives();
+    let selectives_obj = get_selectives().items_obj;
 
     for(const [key,value] of Object.entries(selectives_obj)){
         if(key.localeCompare(k) === 0)
@@ -326,25 +343,22 @@ function one_checkbox_click(k, v){
 
 }
 
-function all_items_button_click(value){
-    let selectives_obj = get_selectives();
-
-    if(value === 1){
+function all_items_button_click(v){
+    
+    let selectives_obj = get_selectives().items_obj;
+    
         for(const [key,value] of Object.entries(selectives_obj)){
+            
             if(key.localeCompare("Hours") === 0){ continue; }
-            selectives_obj[key] = 1;
+            if(key.localeCompare("days_index") === 0){ continue; }
+            
+            selectives_obj[key] = v;
+            
         }
-    }
-    if(value === 0){
-        for(const [key,value] of Object.entries(selectives_obj)){
-            if(key.localeCompare("Hours") === 0){ continue; }
-            selectives_obj[key] = 0;
-        }
-    }
 
     update_selectives(selectives_obj);    
 
-    const is_checked = value === 1 ? true : false; 
+    const is_checked = v === 1 ? true : false; 
     let checkboxes = document.querySelectorAll(".weather-item");
 
     checkboxes.forEach((checkbox) => {
@@ -357,16 +371,83 @@ function all_items_button_click(value){
 let choose = document.querySelector(".choose");
 choose.addEventListener('click', (e) => {
     
-    if(e.target.getAttribute("id").localeCompare("all") === 0){
+    if(e.target.getAttribute("id") !== null && e.target.getAttribute("id").localeCompare("all") === 0){
         let is_checked = e.target.checked ? 1 : 0;
         all_items_button_click(is_checked);
     }
 
-    let array = e.target.getAttribute("class").split(" ");
-    if(array.includes("one-item")){        
-        let key = e.target.getAttribute("value");
-        let value = e.target.checked ? 1 : 0;
-        console.log("check box key: " + key);
-        one_checkbox_click(key, value);
+    if(e.target.getAttribute("class") !== null){
+        let array = e.target.getAttribute("class").split(" ");
+        if(array.includes("one-item")){        
+            let key = e.target.getAttribute("value");
+            let value = e.target.checked ? 1 : 0;
+            
+            one_checkbox_click(key, value);
+        }
+    }    
+
+    if(e.target.getAttribute("id") !== null && e.target.getAttribute("id").localeCompare("hour-value") === 0){
+        let value = e.target.value;
+        hour_change_function(value);
     }
+});
+
+function hour_change_function(hour){
+    
+    let weather_items = get_selectives().items_obj;
+    
+    weather_items['Hours'] = hour;
+    update_selectives(weather_items);
+    get_forecast(weather_items['days_index'], weather_items['Hours']);
+}
+
+function view_day_switch_buttons(){
+    let buttons = `
+                    <div class="previous-day"><button class="day-switch-btn" id="previous-day">previous-day</button></div>
+                    <div class="next-day"><button class="day-switch-btn" id="next-day">next-day</button></div>
+                `;
+
+    let parent_div = document.querySelector(".day-switch");
+    parent_div.innerHTML = buttons;
+
+    let item_obj = get_selectives().items_obj;
+    let current_index = item_obj['days_index'];
+    let max_index = item_obj['days_max_index'];
+
+    if(current_index === 0){
+        document.querySelector("#previous-day").setAttribute("style", "display: none");
+    }
+}
+
+let day_buttons = document.querySelector(".day-switch");
+day_buttons.addEventListener("click", (e) => {
+
+    let item_obj = get_selectives().items_obj;
+    let current_index = item_obj['days_index'];
+    let max_index = item_obj['days_max_index'];
+
+    if(e.target.getAttribute("id") !== null && e.target.getAttribute("id").localeCompare("previous-day") === 0){
+        document.querySelector("#next-day").setAttribute("style","display: flex");
+        if(current_index > 0){
+            item_obj['days_index'] = current_index - 1;
+            if(item_obj['days_index'] === 0){
+                e.target.setAttribute("style", "display: none");
+            }
+        }
+    }
+
+    if(e.target.getAttribute("id") !== null && e.target.getAttribute("id").localeCompare("next-day") === 0){
+        document.querySelector("#previous-day").setAttribute("style","display: flex");
+        if(current_index < max_index){
+            item_obj['days_index'] = current_index + 1;
+            if(item_obj['days_index'] === max_index){
+                e.target.setAttribute("style", "display: none");
+            }
+        }
+    }
+
+    update_selectives(item_obj);
+    create_item_board(item_obj);
+    get_forecast(item_obj['days_index'], item_obj['Hours']);
+
 });

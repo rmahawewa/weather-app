@@ -156,6 +156,7 @@ html, body, .container1, .outer-div{
     border: none;
     border-radius: 0.25rem;
     font-weight: bold;
+    display: flex;
 }
 
 .day-switch-btn:hover{
