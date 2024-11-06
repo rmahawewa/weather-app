@@ -9,21 +9,23 @@
     <div class="container1">
         <div class="container2">
             <h1>Weather forecaster<span>Powed by: <a href="https://www.visualcrossing.com/" target="_blank">visualcrossing</a></span></h1>
-            <div class="inputs">        
-                <div class="date-info card">
-                    <div class="date-info date">
-                        <label>From date</label>
-                        <input type="date" class="date-picker" id="from-date">
+            <div class="inputs">  
+                <form action="#">      
+                    <div class="date-info card">
+                        <div class="date-info date">
+                            <label>From date</label>
+                            <input type="date" class="date-picker" id="from-date" required>
+                        </div>
+                        <div class="date-info date">
+                            <label>To date</label>
+                            <input type="date" class="date-picker" id="to-date" required>
+                        </div>
                     </div>
-                    <div class="date-info date">
-                        <label>To date</label>
-                        <input type="date" class="date-picker" id="to-date">
+                    <div class="get-inputs">
+                        <input type="search" id="search" placeholder="Location" pattern="([A-Za-z])\w+" required>
+                        <button class="search-btn">Search</button>
                     </div>
-                </div>
-                <div class="get-inputs">
-                    <input type="search" id="search" placeholder="Location">
-                    <button class="search-btn">Search</button>
-                </div>
+                </form>
             </div>
 
             <div class="outer-div">
