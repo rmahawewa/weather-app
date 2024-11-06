@@ -15,20 +15,36 @@ html, body, .container1{
     /* padding-top: 1rem; */
 }
 
-.wind{
-
+.partly_cloudy{
+    background-image: url("https://media2.giphy.com/media/dsTMdh9y9KrQQcG803/giphy.gif?cid=fb293c2dcdqpog5w8s4466pvznzyowt6gbiicpe7u6l0iicc&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .snow{
-
+    background-image: url("https://media1.giphy.com/media/gH2bKIakvLuW4/giphy.gif?cid=fb293c2dhj2rnzkmzxpihtte0y2gvsuq5cweur3z6k9nn36b&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .rainy{
+    background-image: url("https://media2.giphy.com/media/3oz8xLLygyhgYfSy9a/giphy.gif?cid=fb293c2dlgl4m80t5i9ru0lsgfzcn73pkpk3uoko50n4q72i&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
 
+.thunder_rain{
+    background-image: url("https://media4.giphy.com/media/3osxYzIQRqN4DOEddC/giphy.gif?cid=fb293c2dwna258lqajfw9oy27o7dmpu9nhqq93i4nwfeu8ox&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .sunney{
+    background-image: url("https://media1.giphy.com/media/1Fm7jEapE18HwS6fkT/giphy.gif?cid=fb293c2dtpfw3n4fez7kyo5r3zzlh4xl0odvo9q6f7iwk6x1&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
 
+.cloudy{
+    background-image: url("https://media0.giphy.com/media/3oEdvbelTmMXOQ9VDO/giphy.gif?cid=fb293c2d9cvw3cd9gmoidwek417khvzofkup4hcudpmxtci6&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
+
+.wind{
+    background-image: url("https://media0.giphy.com/media/l2JIhq7AR3J7Qq9Hy/giphy.gif?cid=fb293c2dpb3u9ikv5m5j7enu0opyn3sfn0wbsxcyw9keqvc7&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
+
+.clear_night{
+    background-image: url("gif_urls/clear_night.jpg");
 }
 
 .container2{
@@ -45,6 +61,10 @@ html, body, .container1{
 }
 
 .inputs{
+    display: flex;
+}
+
+form{
     display: flex;
     gap: 4rem;
 }
@@ -157,6 +177,8 @@ html, body, .container1, .outer-div{
     border-radius: 0.25rem;
     font-weight: bold;
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .day-switch-btn:hover{
@@ -166,4 +188,16 @@ html, body, .container1, .outer-div{
 span{
     font-size: small;
     padding-left: 1rem;
+}
+
+.topic{
+    font-weight: bold;
+}
+
+.hour{
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
 }

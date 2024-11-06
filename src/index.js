@@ -1,8 +1,56 @@
 import "./style.css";
 import {format} from "date-fns";
+import { addDays } from "date-fns";
+import { subDays } from "date-fns";
+import { isValid } from "date-fns";
 
-let infomation = {};
-let days = {};
+
+let date_picker_a = document.querySelector("#from-date");
+let date_picker_b = document.querySelector("#to-date");
+
+date_picker_a.addEventListener("change", function(){
+    set_last_date();
+});
+
+date_picker_b.addEventListener("change", function(){
+    set_first_date();
+});
+
+function get_last_date(first_date){
+    let last_date = addDays(first_date, 7);
+    return {last_date};
+}
+
+function get_first_date(last_date){
+    let first_date = subDays(last_date, 7);
+    return {first_date};
+}
+
+function set_last_date(){
+    let date_picker_a = document.querySelector("#from-date");
+    let date_picker_b = document.querySelector("#to-date");
+    let first_date = date_picker_a.value;
+    first_date = format(first_date, "yyyy-MM-dd");
+    let last_date = get_last_date(first_date).last_date;
+    last_date = format(last_date, "yyyy-MM-dd");
+    console.log("last date: " + last_date);
+
+    date_picker_b.setAttribute("min", first_date);
+    date_picker_b.setAttribute("max", last_date);
+}
+
+function set_first_date(){
+    let date_picker_a = document.querySelector("#from-date");
+    let date_picker_b = document.querySelector("#to-date");
+    let last_date = date_picker_b.value;
+    last_date = format(last_date, "yyyy-MM-dd");
+    let first_date = get_first_date(last_date).first_date;
+    first_date = format(first_date, "yyyy-MM-dd");
+    console.log("first date: " + first_date);
+
+    date_picker_a.setAttribute("min", first_date);
+    date_picker_a.setAttribute("max", last_date);
+}
 
 function store_info(info){
     // if(localStorage.getItem("weather_info") === null){
@@ -27,7 +75,7 @@ function add_selectives(){
     let selectives = {
         'days_index': 0,
         'days_max_index': -1,
-        'Date': 1,
+        'Time': 1,
         'Conditions': 1,
         'Cloud cover': 1,
         'Windspeed': 1,
@@ -89,15 +137,18 @@ function create_day_object(day){
 }
 
 function create_days_array(days){
+    
     let days_array = [];
     for(let day of days){
         let entry = create_day_object(day).days;
         days_array.push(entry);
     }
+    
     return {days_array};
 }
 
 function create_weather_objects(address, forecast, latitude, longitude, timezone, days){
+    console.log(days);
     let days_array = create_days_array(days);
     let weather_obj = {
         Address: address,
@@ -119,14 +170,17 @@ function store_info_object(promise){
     let days = [];
 
     promise.then(function(result){
+        console.log(result);
         address = result.resolvedAddress;
         forecast = result.description;
         latitude = result.latitude;
         longitude = result.longitude;
         timezone = result.timezone;
         days = result.days;
+        console.log(days);
        
         let weather_obj = create_weather_objects(address, forecast, latitude, longitude, timezone, days).weather_obj;
+        console.log(weather_obj);
         store_info(weather_obj);
 
     }).catch(function(){
@@ -138,8 +192,8 @@ function store_info_object(promise){
 
 async function get_weather_info(location, from_date, to_date) {
     // location = "london"; 
-    from_date = "2024-10-31";
-    to_date = "2024-11-01";   
+    // from_date = "2024-10-31";
+    // to_date = "2024-11-03";   
     let response = await fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'+ location +'/'+ from_date +'/'+ to_date +'?key=6FWBP6SFZFSZ3KE3AXM3Z6V2B&contentType=json', {mode:'cors'});
     let info = response.json().then(function(response){
         let info = response;
@@ -152,40 +206,60 @@ async function get_weather_info(location, from_date, to_date) {
 
 let search_button = document.querySelector(".search-btn");
 
+function validate_data(){
+    let from_date = document.querySelector("#from-date").value;
+    let to_date = document.querySelector("#to-date").value;
+    let is_valid_from_date = isValid(from_date);
+    let is_valid_to_date = isValid(to_date);
+    let location = document.querySelector("#search").value;
+}
 
 search_button.addEventListener("click", function(){
-    let location = document.querySelector("#search").value;
-    process(infomation, days);
+    // validate_data();
+    process();
     view_day_switch_buttons();
     
 });
 
-function process(infomation, days){
+function process(){
     let location = document.querySelector("#search").value;
     let from_date = document.querySelector("#from-date").value;
     from_date = format(from_date, "yyyy-MM-dd");
     let to_date = document.querySelector("#to-date").value;
     to_date = format(to_date, "yyyy-MM-dd");
 
-    // let details = get_weather_info(location, from_date, to_date).then((details) => {      
-    //     return details;
-    // });
-    // store_info_object(details);
+    let details = get_weather_info(location, from_date, to_date).then((details) => {      
+        return details;
+    });
+    
+    store_info_object(details);
     add_day_array_max_index();
     create_description();
+    reset_selectives_index();
     let item_obj = get_selectives().items_obj;
     
     create_item_board(item_obj);
+    console.log(item_obj);
     get_forecast(item_obj['days_index'], item_obj['Hours']);
     
 }
 
 function get_forecast(days_array_index, hours_array_index){
-    let whole_forecast = get_info().info;
-    let forecast = whole_forecast.days.days_array;
 
-    weather_all_day(forecast, days_array_index);
-    weather_for_hour(forecast, days_array_index, hours_array_index);
+    let whole_forecast = get_info().info;
+    console.log(whole_forecast);
+
+    if(whole_forecast !== undefined){
+        let forecast = whole_forecast.days.days_array;
+        console.log(forecast);
+
+        if(forecast !== undefined){
+            weather_all_day(forecast, days_array_index);
+            weather_for_hour(forecast, days_array_index, hours_array_index);
+        }
+        
+    }
+   
 }
 
 function create_description(){
@@ -197,7 +271,7 @@ function create_description(){
     for(const [key,value] of Object.entries(description)){
         if(key.localeCompare("days") === 0){ continue; }
         description_html +=  `<div class='description_unit'>
-                                <label>`+ key +`</label>
+                                <label class="topic">`+ key +`</label>
                                 <label>`+ value +`</label>
                               </div>`;
     }
@@ -215,6 +289,7 @@ function create_item_board(item_obj){
                             <div class="hour">
                             <label>Hour</label>
                             <input type="number" id="hour-value" min="0" max="23" value=`+ hour_value +`>
+                            </div>
                             <div class="item_check_boxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1rem;">
                             <div class='checkbox'>
                                     <input type="checkbox" class='weather-item' id='all' value='All' checked>
@@ -224,7 +299,7 @@ function create_item_board(item_obj){
         for(const [key,value] of Object.entries(item_obj)){
             let is_checked = value === 1 ? "checked" : "";
             if(not_in_hours.includes(key) && item_obj.Hours > -1){ continue; }
-            if(key.localeCompare("Hours") === 0 || key.localeCompare("days_index") === 0){ continue; }
+            if(key.localeCompare("Hours") === 0 || key.localeCompare("days_index") === 0 || key.localeCompare("days_max_index") === 0){ continue; }
             item_container += `
                                 <div class='checkbox'>
                                     <input type="checkbox" class='weather-item one-item' id="`+ key +`" value="`+ key +`" `+ is_checked +`>
@@ -232,8 +307,10 @@ function create_item_board(item_obj){
                                 </div>
             `;
         }
-        item_container
+        
     }
+    item_container += `</div>`;
+
     let parent_div = document.querySelector(".choose");
     parent_div.innerHTML = item_container;
 }
@@ -244,16 +321,20 @@ function weather_all_day(days_obj, index){   //see line number 21
 
     let item_container = '<h3>Throughout day forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
 
-    for(const [key,value] of Object.entries(details)){
-        if(value !== undefined && not_in_hours.includes(key)){
-            item_container += `
-                <div class="all-day-item" style="display: flex; flex-direction: column;">
-                    <label>`+ key +`</label>
-                    <label>`+ value +`</label>
-                </div>            
-            `;
+    console.log(details);
+
+    if(details !== undefined){
+        for(const [key,value] of Object.entries(details)){
+            if(value !== undefined && not_in_hours.includes(key)){
+                item_container += `
+                    <div class="all-day-item" style="display: flex; flex-direction: column;">
+                        <label class="topic">`+ key +`</label>
+                        <label>`+ value +`</label>
+                    </div>            
+                `;
+            }
         }
-    }
+    }        
 
     item_container += `</div>`;
 
@@ -276,7 +357,7 @@ function weather_for_hour(days_obj, index, hour){
             let name = key.localeCompare("Date") === 0 ? "Time": key;
             item_container += `
                 <div class="additional-item" style="display: flex; flex-direction: column;">
-                    <label>`+ name +`</label>
+                    <label class="topic">`+ name +`</label>
                     <label>`+ value +`</label>
                 </div>
             `;
@@ -298,6 +379,12 @@ function add_day_array_max_index(){
 
     let selectives = get_selectives().items_obj;
     selectives['days_max_index'] = info_object_max_index;
+    update_selectives(selectives);
+}
+
+function reset_selectives_index(){
+    let selectives = get_selectives().items_obj;
+    selectives['days_index'] = 0;
     update_selectives(selectives);
 }
 
