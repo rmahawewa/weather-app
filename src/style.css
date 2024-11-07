@@ -12,11 +12,12 @@ html, body, .container1{
     display: flex;
     align-items: center;
     justify-content: center;
+    /* width: max-content; */
     /* padding-top: 1rem; */
 }
 
 .partly_cloudy{
-    background-image: url("https://media2.giphy.com/media/dsTMdh9y9KrQQcG803/giphy.gif?cid=fb293c2dcdqpog5w8s4466pvznzyowt6gbiicpe7u6l0iicc&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+    background-image: url("https://media3.giphy.com/media/ZbISu3LvbjmE1QrkyZ/giphy.gif?cid=fb293c2dm7dv02o8lqtnt4ok87kt08ju1p2wusv091pxgldq&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .snow{
@@ -36,7 +37,7 @@ html, body, .container1{
 }
 
 .cloudy{
-    background-image: url("https://media0.giphy.com/media/3oEdvbelTmMXOQ9VDO/giphy.gif?cid=fb293c2d9cvw3cd9gmoidwek417khvzofkup4hcudpmxtci6&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+    background-image: url("https://media0.giphy.com/media/Pp9W9tuVF5NwQ/giphy.gif?cid=fb293c2den3uq09ml5bc4lchuc8h6wvclvyaqs9ggjngcx6u&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .wind{
@@ -44,7 +45,15 @@ html, body, .container1{
 }
 
 .clear_night{
-    background-image: url("gif_urls/clear_night.jpg");
+    background-image: url("https://media2.giphy.com/media/IdMG2hVBohOuAggLX4/giphy.gif?cid=fb293c2d4mwujdsbgdcyrgwn3h0p63kdfz4rbry93x1pv4ae&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
+
+.fog{
+    background-image: url("https://media3.giphy.com/media/ZWRCWdUymIGNW/giphy.gif?cid=fb293c2dcb2sdnkzf1zblo9llrtj9inazgc7tfh55hp29l4x&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
+}
+
+.partly_cloudy_night{
+    background-image: url("https://media2.giphy.com/media/ZeBEDzb6uxbWYUxZYA/giphy.gif?cid=fb293c2d8dt7upbckcm5voqz9kkbp14ti32gaxt3qs87i4qa&ep=v1_gifs_translate&rid=giphy.gif&ct=g");
 }
 
 .container2{
@@ -61,17 +70,27 @@ html, body, .container1{
 }
 
 .inputs{
-    display: flex;
+    display: flex;    
 }
 
 form{
     display: flex;
-    gap: 4rem;
+    flex-direction: column;
+    gap: 2rem;
+    @media (width >= 40em) {
+        flex-direction: row;
+        gap: 4rem;
+    }
 }
 
 .date-info{
     display: flex;
-    gap: 3rem;
+    flex-direction: column;
+    @media (width >= 40em) {
+        flex-direction: row;
+        gap: 3rem;
+    }
+    gap: 2rem;
 }
 
 .date{
@@ -80,6 +99,11 @@ form{
 
 .get-inputs{
     display: flex;
+    justify-content: center;
+    @media (width >= 40em) {
+        flex-direction: row;
+    }
+    gap: 0.5rem;
 }
 
 .view-info{
@@ -185,6 +209,21 @@ html, body, .container1, .outer-div{
     border: 2px solid white;
 }
 
+.search-btn{
+    background-color: white;
+    color: #ea580c;
+}
+
+.date-picker, #search, .search-btn{
+    height: 2rem;
+    border-radius: 0.25rem;
+    border: 2px solid #ea580c;
+}
+
+.date-info, .get-inputs, #invalid_data{
+    align-items: center;
+}
+
 span{
     font-size: small;
     padding-left: 1rem;
@@ -200,4 +239,19 @@ span{
     justify-content: left;
     padding-bottom: 0.5rem;
     gap: 0.5rem;
+}
+
+#invalid_data{
+    font-size: 1rem;
+    font-weight: bolder;
+    display: none;
+    color: red;
+}
+
+h1{
+    display: flex;
+    flex-direction: column;
+    @media (width >= 40em) {
+        flex-direction: row;
+    }
 }

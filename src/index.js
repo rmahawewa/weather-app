@@ -4,6 +4,8 @@ import { addDays } from "date-fns";
 import { subDays } from "date-fns";
 import { isValid } from "date-fns";
 
+let date = new Date();
+date = format(date, "MM/dd/yyyy");
 
 let date_picker_a = document.querySelector("#from-date");
 let date_picker_b = document.querySelector("#to-date");
@@ -33,8 +35,7 @@ function set_last_date(){
     first_date = format(first_date, "yyyy-MM-dd");
     let last_date = get_last_date(first_date).last_date;
     last_date = format(last_date, "yyyy-MM-dd");
-    console.log("last date: " + last_date);
-
+    
     date_picker_b.setAttribute("min", first_date);
     date_picker_b.setAttribute("max", last_date);
 }
@@ -46,8 +47,7 @@ function set_first_date(){
     last_date = format(last_date, "yyyy-MM-dd");
     let first_date = get_first_date(last_date).first_date;
     first_date = format(first_date, "yyyy-MM-dd");
-    console.log("first date: " + first_date);
-
+    
     date_picker_a.setAttribute("min", first_date);
     date_picker_a.setAttribute("max", last_date);
 }
@@ -148,7 +148,7 @@ function create_days_array(days){
 }
 
 function create_weather_objects(address, forecast, latitude, longitude, timezone, days){
-    console.log(days);
+    
     let days_array = create_days_array(days);
     let weather_obj = {
         Address: address,
@@ -161,7 +161,7 @@ function create_weather_objects(address, forecast, latitude, longitude, timezone
     return {weather_obj};
 }
 
-function store_info_object(promise){
+function store_info_object(result){
     let address = "";
     let forecast = "";
     let latitude = "";
@@ -169,55 +169,70 @@ function store_info_object(promise){
     let timezone = "";
     let days = [];
 
-    promise.then(function(result){
-        console.log(result);
-        address = result.resolvedAddress;
-        forecast = result.description;
-        latitude = result.latitude;
-        longitude = result.longitude;
-        timezone = result.timezone;
-        days = result.days;
-        console.log(days);
-       
-        let weather_obj = create_weather_objects(address, forecast, latitude, longitude, timezone, days).weather_obj;
-        console.log(weather_obj);
-        store_info(weather_obj);
+        if(result === -1){
+            document.querySelector("#invalid_data").setAttribute("style","display:flex");
+            
+        }else{
+            document.querySelector("#invalid_data").setAttribute("style","display:none");
+            
+            address = result.resolvedAddress;
+            forecast = result.description;
+            latitude = result.latitude;
+            longitude = result.longitude;
+            timezone = result.timezone;
+            days = result.days;
+            
+        
+            let weather_obj = create_weather_objects(address, forecast, latitude, longitude, timezone, days).weather_obj;
+            store_info(weather_obj);
+        }        
 
-    }).catch(function(){
-
-    }).finally(function(){
-
-    });
 }
 
 async function get_weather_info(location, from_date, to_date) {
-    // location = "london"; 
-    // from_date = "2024-10-31";
-    // to_date = "2024-11-03";   
-    let response = await fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'+ location +'/'+ from_date +'/'+ to_date +'?key=6FWBP6SFZFSZ3KE3AXM3Z6V2B&contentType=json', {mode:'cors'});
-    let info = response.json().then(function(response){
-        let info = response;
-        
-        return info;
-    });
 
-    return info;
+    try{
+        let response = await fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'+ location +'/'+ from_date +'/'+ to_date +'?key=6FWBP6SFZFSZ3KE3AXM3Z6V2B&contentType=json', {mode:'cors'});
+        
+        let response_status = response.status;
+        if(response_status === 200){
+            let info = response.json().then(function(response){
+                let info = response;                
+                return info;
+            });
+            return info;
+        }else{
+            return -1;
+        }        
+    }catch(e){
+        console.log(e);
+    }
 }
 
 let search_button = document.querySelector(".search-btn");
 
 function validate_data(){
+    // let date_reg_exp = "/^\d{1,2}\/\d{1,2}\/\d{2,4}$/";
+
     let from_date = document.querySelector("#from-date").value;
     let to_date = document.querySelector("#to-date").value;
-    let is_valid_from_date = isValid(from_date);
-    let is_valid_to_date = isValid(to_date);
     let location = document.querySelector("#search").value;
+    if(from_date.localeCompare("") !== 0 && to_date.localeCompare("") !== 0 && location.localeCompare("") !== 0){
+        return true;
+    }
+    return false;
 }
 
-search_button.addEventListener("click", function(){
-    // validate_data();
-    process();
-    view_day_switch_buttons();
+search_button.addEventListener("click", (e) =>{
+    e.preventDefault;
+    let validity = validate_data();
+    if(validity){
+        console.log("pass");
+        process();
+    }else{
+        document.querySelector("#invalid_data").setAttribute("style","display:flex");
+    }
+        
     
 });
 
@@ -228,34 +243,36 @@ function process(){
     let to_date = document.querySelector("#to-date").value;
     to_date = format(to_date, "yyyy-MM-dd");
 
-    let details = get_weather_info(location, from_date, to_date).then((details) => {      
-        return details;
-    });
-    
-    store_info_object(details);
-    add_day_array_max_index();
-    create_description();
-    reset_selectives_index();
-    let item_obj = get_selectives().items_obj;
-    
-    create_item_board(item_obj);
-    console.log(item_obj);
-    get_forecast(item_obj['days_index'], item_obj['Hours']);
-    
+    let details = get_weather_info(location, from_date, to_date).then((details) => {
+        if(details === -1){
+            document.querySelector("#invalid_data").setAttribute("style","display:flex");
+        }else{
+            document.querySelector("#invalid_data").setAttribute("style","display:none");
+
+            store_info_object(details);    
+            add_day_array_max_index();
+            create_description();
+            reset_selectives_index();
+            let item_obj = get_selectives().items_obj;
+            
+            create_item_board(item_obj);            
+            get_forecast(item_obj['days_index'], item_obj['Hours']);
+            view_day_switch_buttons();
+        }
+    });    
 }
 
 function get_forecast(days_array_index, hours_array_index){
 
     let whole_forecast = get_info().info;
-    console.log(whole_forecast);
-
+    
     if(whole_forecast !== undefined){
         let forecast = whole_forecast.days.days_array;
-        console.log(forecast);
-
+        
         if(forecast !== undefined){
             weather_all_day(forecast, days_array_index);
             weather_for_hour(forecast, days_array_index, hours_array_index);
+            change_background(forecast, days_array_index, hours_array_index);
         }
         
     }
@@ -321,8 +338,6 @@ function weather_all_day(days_obj, index){   //see line number 21
 
     let item_container = '<h3>Throughout day forecast</h3><div class="forecast-discription" width="100%" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: 1rem;">';
 
-    console.log(details);
-
     if(details !== undefined){
         for(const [key,value] of Object.entries(details)){
             if(value !== undefined && not_in_hours.includes(key)){
@@ -341,6 +356,35 @@ function weather_all_day(days_obj, index){   //see line number 21
     let parent_div = document.querySelector(".general-forecast");
     parent_div.innerHTML = item_container;
 
+}
+
+function change_background(days_obj, index, hour){
+    let conditions = {
+        'snow': "snow",
+        'snow-showers-day': "snow",
+        'snow-showers-night': "snow",
+        'rain': "rainy",
+        'showers-day': "rainy",
+        'showers-night': "rainy",
+        'thunder-rain': "thunder_rain",
+        'thunder-showers-day': "thunder_rain",
+        'thunder-showers-night': "thunder_rain",
+        'fog': "fog",
+        'wind': "wind",
+        'cloudy': "cloudy",
+        'partly-cloudy-day': "partly_cloudy",
+        'partly-cloudy-night': "partly_cloudy_night",
+        'clear-day': "sunney",
+        'clear-night': "clear_night",
+    }
+
+    let details = days_obj[index].hours[hour];
+    let icon = details['Icon'].toString();
+    let class_icon = conditions[icon];
+    let background = document.querySelectorAll(".outer-div");
+    background.forEach((bg) => {
+        bg.className = "outer-div " + class_icon;
+    });    
 }
 
 function weather_for_hour(days_obj, index, hour){
@@ -375,8 +419,7 @@ function add_day_array_max_index(){
     let info_object = get_info().info;
     let info_object_length = info_object.days.days_array.length;
     let info_object_max_index = info_object_length - 1;
-    console.log(info_object.days.days_array);
-
+    
     let selectives = get_selectives().items_obj;
     selectives['days_max_index'] = info_object_max_index;
     update_selectives(selectives);
