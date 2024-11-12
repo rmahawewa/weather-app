@@ -75,17 +75,18 @@ function add_selectives(){
     let selectives = {
         'days_index': 0,
         'days_max_index': -1,
+        'all': 0,
         'Time': 1,
         'Conditions': 1,
-        'Cloud cover': 1,
+        'Cloud cover': 0,
         'Windspeed': 1,
-        'Dew': 1,      
-        'Humidity': 1,
+        'Dew': 0,      
+        'Humidity': 0,
         'Icon': 1,       
-        'Solar energy': 1,
-        'Solar radiation': 1,
+        'Solar energy': 0,
+        'Solar radiation': 0,
         'Snow': 1,       
-        'Snow depth': 1,
+        'Snow depth': 0,
         'Visibility': 1,
         'Wind direction': 1,
         'Hours': 10,
@@ -302,6 +303,7 @@ function create_item_board(item_obj){
 
     let not_in_hours = ['Moonphase', 'Description', 'Maximum temperature', 'Minimum temperature', 'Sunrise time', 'Sunset time'];
     let hour_value = (item_obj.Hours > -1 ? item_obj.Hours : "");
+    let is_checked = item_obj.all === 1 ? "checked" : "";
     let item_container = `<h3>Add required additional information</h3>
                             <div class="hour">
                             <label>Hour</label>
@@ -309,7 +311,7 @@ function create_item_board(item_obj){
                             </div>
                             <div class="item_check_boxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1rem;">
                             <div class='checkbox'>
-                                    <input type="checkbox" class='weather-item' id='all' value='All' checked>
+                                    <input type="checkbox" class='weather-item' id='all' value='All' `+ is_checked +`>
                                     <label>All</label>
                             </div>`;
     if(Object.keys(item_obj).length > 0){
